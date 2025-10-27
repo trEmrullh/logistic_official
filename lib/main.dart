@@ -1,12 +1,19 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistic_official/constants/app_color.dart';
+import 'package:logistic_official/firebase_options.dart';
 import 'package:logistic_official/main_app_body.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(
-    ProviderScope(
-      child: const MyApp(),
+    const ProviderScope(
+      child: MyApp(),
     ),
   );
 }
@@ -25,6 +32,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
         fontFamily: 'Oxanium',
+        scaffoldBackgroundColor: AppColors.white,
         appBarTheme: AppBarTheme(
           backgroundColor: AppColors.orange,
           centerTitle: true,

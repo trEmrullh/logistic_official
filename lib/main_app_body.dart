@@ -1,6 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:logistic_official/constants/app_color.dart';
+import 'package:logistic_official/controller/location_controller/location_view_controller.dart';
 import 'package:logistic_official/utils/screen_utils.dart';
 import 'package:logistic_official/widget/aod_location.dart';
 import 'package:logistic_official/widget/left_menu.dart';
@@ -13,14 +16,14 @@ import 'pages/routes_page.dart';
 import 'pages/trucks_page.dart';
 import 'widget/aod_job.dart';
 
-class MainAppBody extends StatefulWidget {
+class MainAppBody extends ConsumerStatefulWidget {
   const MainAppBody({super.key});
 
   @override
-  State<MainAppBody> createState() => _MainAppBodyState();
+  ConsumerState<MainAppBody> createState() => _MainAppBodyState();
 }
 
-class _MainAppBodyState extends State<MainAppBody> {
+class _MainAppBodyState extends ConsumerState<MainAppBody> {
   int _currentIndex = 0;
 
   final List<Widget> pages = const [
@@ -56,7 +59,7 @@ class _MainAppBodyState extends State<MainAppBody> {
               actions: _currentIndex != 0
                   ? [
                       IconButton(
-                        onPressed: () {
+                        onPressed: () async {
                           switch (_currentIndex) {
                             case 1:
                               showGeneralDialog(
@@ -69,12 +72,15 @@ class _MainAppBodyState extends State<MainAppBody> {
                               break;
 
                             case 2:
-                              showGeneralDialog(
-                                context: context,
-                                pageBuilder: (context, animation, secondaryAnimation) {
-                                  return aodLocation();
-                                },
+                              ref.read(locationViewCP.notifier).startTextEdits();
+
+                              Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                  builder: (context) => AodLocation(),
+                                ),
                               );
+
                               break;
                           }
                         },
