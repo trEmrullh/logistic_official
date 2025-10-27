@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "343498599521",
+    "project_id": "lojistik-f4f2e",
+    "storage_bucket": "lojistik-f4f2e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:343498599521:android:0d226a0ab9906d1bf8ce20",
+        "android_client_info": {
+          "package_name": "com.example.logistic_official"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYPzwgMOZt4U3zCPsWXgnvXAYaW9kHZiw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
