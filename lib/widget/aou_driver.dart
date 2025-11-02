@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:logistic_official/constants/app_color.dart';
+import 'package:logistic_official/controller/driver_controller/driver_data_controller.dart';
+import 'package:logistic_official/controller/driver_controller/driver_view_controller.dart';
 import 'package:logistic_official/controller/location_controller/location_data_controller.dart';
 import 'package:logistic_official/controller/location_controller/location_view_controller.dart';
 import 'package:logistic_official/models/city_model.dart';
 import 'package:logistic_official/models/location_model.dart';
 import 'package:logistic_official/utils/screen_utils.dart';
 
-class AoULocation extends ConsumerStatefulWidget {
-  const AoULocation({
+class AoUDriver extends ConsumerStatefulWidget {
+  const AoUDriver({
     super.key,
     required this.isUpdate,
     this.location,
@@ -19,18 +21,18 @@ class AoULocation extends ConsumerStatefulWidget {
   final LocationModel? location;
 
   @override
-  ConsumerState<AoULocation> createState() => _AodLocationState();
+  ConsumerState<AoUDriver> createState() => _AodLocationState();
 }
 
-class _AodLocationState extends ConsumerState<AoULocation> {
-  late LocationViewController _locationViewController;
+class _AodLocationState extends ConsumerState<AoUDriver> {
+  late DriverViewController _driverViewController;
 
   @override
   void initState() {
-    _locationViewController = ref.read(locationViewCP.notifier);
+    _driverViewController = ref.read(driverViewCP.notifier);
 
     Future.microtask(() {
-      _locationViewController.startTextEdits();
+      _driverViewController.startTextEdits();
     });
     super.initState();
   }
@@ -38,11 +40,18 @@ class _AodLocationState extends ConsumerState<AoULocation> {
   @override
   void dispose() {
     Future.microtask(() {
-      _locationViewController.reset();
+      _driverViewController.reset();
     });
 
     super.dispose();
   }
+
+  final List<String> hintList = [
+    'İsim',
+    'Soyisim',
+    'Telefon No',
+    'Şifre',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +59,9 @@ class _AodLocationState extends ConsumerState<AoULocation> {
 
     final locationVS = ref.watch(locationViewCP);
     final locationDS = ref.watch(locationDataCP);
+
+    final driverVS = ref.watch(driverViewCP);
+    final driverDS = ref.watch(driverDataCP);
 
     return GestureDetector(
       onTap: !largeScreen
@@ -75,8 +87,36 @@ class _AodLocationState extends ConsumerState<AoULocation> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    ListView.separated(
+                      separatorBuilder: (context, index) => const SizedBox(height: 5),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: hintList.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              hintList[index],
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            TextField(
+                              controller: driverVS.textEditsDriver[index],
+                              decoration: InputDecoration(
+                                isDense: true,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 5),
                     const Text(
-                      'Yer Tipi',
+                      'Firma',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     DropdownButtonFormField<String>(
@@ -91,33 +131,19 @@ class _AodLocationState extends ConsumerState<AoULocation> {
                         isDense: true,
                         border: OutlineInputBorder(),
                       ),
-                      initialValue: locationVS.type == '' ? null : locationVS.type,
-                      items: ['Firma', 'Depo', 'Liman']
+                      initialValue: driverVS.selectedCompany == '' ? null : locationVS.type,
+                      items: ['4e Lojistik', 'Gazinur']
                           .map(
                             (option) => DropdownMenuItem(value: option, child: Text(option)),
                           )
                           .toList(),
                       onChanged: (value) {
-                        ref.read(locationViewCP.notifier).selectType(value!);
+                        ref.read(driverViewCP.notifier).selectCompany(value!);
                       },
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 5),
                     const Text(
-                      'Yer Adı',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextField(
-                      controller: locationVS.textEditsLocation[0],
-                      decoration: InputDecoration(
-                        isDense: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Bulunduğu Şehir',
+                      'Varsayılan Araç',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Autocomplete<City>(
@@ -149,7 +175,7 @@ class _AodLocationState extends ConsumerState<AoULocation> {
                               controller: textEditingController,
                               focusNode: focusNode,
                               decoration: InputDecoration(
-                                hintText: 'Şehir Ara...',
+                                hintText: 'Plaka Ara...',
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(5.0),
                                 ),
@@ -164,28 +190,22 @@ class _AodLocationState extends ConsumerState<AoULocation> {
                             );
                           },
                     ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Konum',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-
-                    TextField(
-                      controller: locationVS.textEditsLocation[1],
-                      enableInteractiveSelection: true, // seçim menüsü aktif
-                      decoration: InputDecoration(
-                        isDense: true,
-                        hintText: 'https://maps.app.goo.gl/------- Formatında Giriniz',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        Switch.adaptive(
+                          value: driverVS.mobileAuth,
+                          onChanged: (value) {
+                            ref.read(driverViewCP.notifier).setMobileAuth(value);
+                          },
                         ),
-                      ),
-                      // inputFormatters: [
-                      //   // Klavyeden yazmayı engelle
-                      //   FilteringTextInputFormatter.deny(RegExp(r'.')),
-                      // ],
+                        const SizedBox(width: 10),
+                        Text(
+                          'Mobil Kullanım Yetkisi ${driverVS.mobileAuth ? 'Açık' : 'Kapalı'}',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
-                    Text("Konum bilgisini Google Haritalar'dan kopla-yapıştır yaparak ekleyiniz."),
                     if (!largeScreen) ...[
                       const SizedBox(height: 20),
                       SizedBox(

@@ -154,6 +154,7 @@ class _LocationsPageState extends ConsumerState<LocationsPage> {
                   thickness: 8.0,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.only(bottom: 10),
                     child: DataTable(
                       showCheckboxColumn: true,
                       columnSpacing: 25,
@@ -501,7 +502,6 @@ class _LocationsPageState extends ConsumerState<LocationsPage> {
 
   TextField searchTextField() {
     return TextField(
-      //controller: locationVS.searchControllers[index],
       onChanged: (value) {
         var item = value.toLowerCase();
         ref.read(locationDataCP.notifier).searchItem(item);

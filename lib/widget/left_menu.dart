@@ -40,7 +40,7 @@ class _AppLeftMenuState extends ConsumerState<AppLeftMenu> {
           radius: 25,
           backgroundColor: AppColors.darkOrange,
           child: Text(
-            'AA',
+            'EO',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -57,7 +57,7 @@ class _AppLeftMenuState extends ConsumerState<AppLeftMenu> {
           ),
         ),
         Text(
-          'BB',
+          'Emrullah Orhan',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,

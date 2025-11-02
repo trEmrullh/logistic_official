@@ -182,27 +182,6 @@ class LocationDataController extends StateNotifier<LocationDataState> {
     state = state.copyWith(locations: sortedLocations);
   }
 
-  // void searchItem(String searchText, String orderField) {
-  //   if (searchText.isEmpty) {
-  //     locationsStream();
-  //   } else {
-  //     List<LocationModel> filteredLocations = state.locations.where((location) {
-  //       switch (orderField) {
-  //         case 'name':
-  //           return location.name!.toLowerCase().contains(searchText.toLowerCase());
-  //         case 'city':
-  //           return location.city.cityName.toLowerCase().contains(searchText.toLowerCase());
-  //         case 'type':
-  //           return location.type!.toLowerCase().contains(searchText.toLowerCase());
-  //         default:
-  //           return false;
-  //       }
-  //     }).toList();
-  //
-  //     state = state.copyWith(locations: filteredLocations);
-  //   }
-  // }
-
   void searchItem(String searchText) {
     if (searchText.isEmpty) {
       state = state.copyWith(locations: _fullLocationList);
