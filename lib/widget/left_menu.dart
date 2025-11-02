@@ -113,11 +113,14 @@ class _AppLeftMenuState extends ConsumerState<AppLeftMenu> {
                           ),
                         ),
                         const SizedBox(width: 10),
-                        Text(
-                          leftMenuItems[index]['name'],
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: selectedIndex == index ? AppColors.white : AppColors.black,
+                        Flexible(
+                          child: Text(
+                            leftMenuItems[index]['name'],
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: selectedIndex == index ? AppColors.white : AppColors.black,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],

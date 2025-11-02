@@ -1,11 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:logistic_official/constants/app_color.dart';
 import 'package:logistic_official/controller/location_controller/location_view_controller.dart';
 import 'package:logistic_official/utils/screen_utils.dart';
-import 'package:logistic_official/widget/aod_location.dart';
 import 'package:logistic_official/widget/left_menu.dart';
 
 import 'pages/dashboard_page.dart';
@@ -74,12 +72,12 @@ class _MainAppBodyState extends ConsumerState<MainAppBody> {
                             case 2:
                               ref.read(locationViewCP.notifier).startTextEdits();
 
-                              Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                  builder: (context) => AodLocation(),
-                                ),
-                              );
+                              // Navigator.push(
+                              //   context,
+                              //   CupertinoPageRoute(
+                              //     builder: (context) => AoULocation(),
+                              //   ),
+                              // );
 
                               break;
                           }

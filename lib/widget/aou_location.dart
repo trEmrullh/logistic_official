@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:logistic_official/constants/app_color.dart';
@@ -8,14 +9,21 @@ import 'package:logistic_official/models/city_model.dart';
 import 'package:logistic_official/models/location_model.dart';
 import 'package:logistic_official/utils/screen_utils.dart';
 
-class AodLocation extends ConsumerStatefulWidget {
-  const AodLocation({super.key});
+class AoULocation extends ConsumerStatefulWidget {
+  const AoULocation({
+    super.key,
+    required this.isUpdate,
+    this.location,
+  });
+
+  final bool isUpdate;
+  final LocationModel? location;
 
   @override
-  ConsumerState<AodLocation> createState() => _AodLocationState();
+  ConsumerState<AoULocation> createState() => _AodLocationState();
 }
 
-class _AodLocationState extends ConsumerState<AodLocation> {
+class _AodLocationState extends ConsumerState<AoULocation> {
   late LocationViewController _locationViewController;
 
   @override
@@ -31,8 +39,9 @@ class _AodLocationState extends ConsumerState<AodLocation> {
   @override
   void dispose() {
     Future.microtask(() {
-      _locationViewController.dispose();
+      _locationViewController.reset();
     });
+
     super.dispose();
   }
 
@@ -121,6 +130,7 @@ class _AodLocationState extends ConsumerState<AodLocation> {
 
                         ref.read(locationViewCP.notifier).selectCity(selectedCity);
                       },
+                      initialValue: TextEditingValue(text: locationVS.selectedCity.cityName),
                       optionsBuilder: (TextEditingValue textEditingValue) {
                         if (textEditingValue.text.isEmpty) {
                           return const Iterable.empty();
@@ -160,16 +170,23 @@ class _AodLocationState extends ConsumerState<AodLocation> {
                       'Konum',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
+
                     TextField(
                       controller: locationVS.textEditsLocation[1],
+                      enableInteractiveSelection: true, // seçim menüsü aktif
                       decoration: InputDecoration(
                         isDense: true,
+                        hintText: 'https://maps.app.goo.gl/------- Formatında Giriniz',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),
+                      // inputFormatters: [
+                      //   // Klavyeden yazmayı engelle
+                      //   FilteringTextInputFormatter.deny(RegExp(r'.')),
+                      // ],
                     ),
-
+                    Text("Konum bilgisini Google Haritalar'dan kopla-yapıştır yaparak ekleyiniz."),
                     if (!largeScreen) ...[
                       const SizedBox(height: 20),
                       SizedBox(
@@ -184,30 +201,62 @@ class _AodLocationState extends ConsumerState<AodLocation> {
                           ),
                           onPressed:
                               locationDS.isLoadingAddOrEdit == true ||
-                                  locationVS.type == '' ||
+                                  locationVS.type.isEmpty ||
                                   locationVS.textEditsLocation[0].text.isEmpty ||
-                                  locationVS.selectedCity.cityName == ''
+                                  locationVS.selectedCity.cityName.isEmpty
                               ? null
                               : () async {
-                                  var newLocation = LocationModel(
-                                    type: locationVS.type,
-                                    name: locationVS.textEditsLocation[0].text,
-                                    city: locationVS.selectedCity,
-                                    maps: locationVS.textEditsLocation[1].text,
-                                    isDeleted: false,
-                                    createDate: '${DateTime.now()}',
-                                    updateDate: '${DateTime.now()}',
-                                    createID: 'denemeUser',
-                                    updateID: 'denemeUser',
-                                  );
+                                  if (widget.isUpdate) {
+                                    if (widget.location != null) {
+                                      Map<String, dynamic> editLocation = {};
 
-                                  try {
-                                    await ref.read(locationDataCP.notifier).addLocation(newLocation);
-                                    if (context.mounted) {
-                                      Navigator.of(context).pop();
+                                      if (widget.location!.type != locationVS.type) {
+                                        editLocation['type'] = locationVS.type;
+                                      }
+
+                                      if (widget.location!.name != locationVS.textEditsLocation[0].text) {
+                                        editLocation['name'] = locationVS.textEditsLocation[0].text;
+                                      }
+
+                                      if (widget.location!.city.cityName != locationVS.selectedCity.cityName) {
+                                        editLocation['city'] = locationVS.selectedCity.toJson();
+                                      }
+
+                                      if (widget.location!.maps != locationVS.textEditsLocation[1].text) {
+                                        editLocation['maps'] = locationVS.textEditsLocation[1].text;
+                                      }
+
+                                      if (editLocation.isNotEmpty) {
+                                        editLocation['updateDate'] = '${DateTime.now()}';
+                                        editLocation['updateID'] = 'düzenlemeDeneme';
+                                      }
+
+                                      await ref.read(locationDataCP.notifier).updateLocation(widget.location!.id!, editLocation);
+                                      if (context.mounted) {
+                                        Navigator.of(context).pop();
+                                      }
                                     }
-                                  } catch (e) {
-                                    throw Exception(e);
+                                  } else {
+                                    var newLocation = LocationModel(
+                                      type: locationVS.type,
+                                      name: locationVS.textEditsLocation[0].text,
+                                      city: locationVS.selectedCity,
+                                      maps: locationVS.textEditsLocation[1].text,
+                                      isDeleted: false,
+                                      createDate: '${DateTime.now()}',
+                                      updateDate: '${DateTime.now()}',
+                                      createID: 'denemeUser',
+                                      updateID: 'denemeUser',
+                                    );
+
+                                    try {
+                                      await ref.read(locationDataCP.notifier).addLocation(newLocation);
+                                      if (context.mounted) {
+                                        Navigator.of(context).pop();
+                                      }
+                                    } catch (e) {
+                                      throw Exception(e);
+                                    }
                                   }
                                 },
                           child: Text(

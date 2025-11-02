@@ -33,6 +33,7 @@ class LocationDataController extends StateNotifier<LocationDataState> {
 
   final String _collectionName = 'Locations';
   StreamSubscription? _locationsSubscription;
+  List<LocationModel>? _fullLocationList;
 
   /// Yerleri Getirir.
   Future<void> locationsStream() async {
@@ -59,6 +60,10 @@ class LocationDataController extends StateNotifier<LocationDataState> {
               ...doc.data(),
             });
           }).toList();
+
+          _fullLocationList = List.from(locations);
+
+          locations.sort((a, b) => a.name!.toLowerCase().compareTo(b.name!.toLowerCase()));
 
           state = state.copyWith(
             locations: locations,
@@ -144,11 +149,73 @@ class LocationDataController extends StateNotifier<LocationDataState> {
     }
   }
 
-  @override
-  void dispose() {
-    _locationsSubscription?.cancel();
-    print('LOCATİON AUTO DİSPOSE');
-    super.dispose();
+  /// Yerleri İsimlerine Göre Sıralar
+  void sortLocationsByName(String orderType, String orderField) {
+    List<LocationModel> sortedLocations = List.from(state.locations);
+
+    if (orderType == 'ASC') {
+      switch (orderField) {
+        case 'name':
+          sortedLocations.sort((a, b) => a.name!.toLowerCase().compareTo(b.name!.toLowerCase()));
+          break;
+        case 'city':
+          sortedLocations.sort((a, b) => a.city.cityName.toLowerCase().compareTo(b.city.cityName.toLowerCase()));
+          break;
+        case 'type':
+          sortedLocations.sort((a, b) => a.type!.toLowerCase().compareTo(b.type!.toLowerCase()));
+          break;
+      }
+    } else {
+      switch (orderField) {
+        case 'name':
+          sortedLocations.sort((a, b) => b.name!.toLowerCase().compareTo(a.name!.toLowerCase()));
+          break;
+        case 'city':
+          sortedLocations.sort((a, b) => b.city.cityName.toLowerCase().compareTo(a.city.cityName.toLowerCase()));
+          break;
+        case 'type':
+          sortedLocations.sort((a, b) => b.type!.toLowerCase().compareTo(a.type!.toLowerCase()));
+          break;
+      }
+    }
+
+    state = state.copyWith(locations: sortedLocations);
+  }
+
+  // void searchItem(String searchText, String orderField) {
+  //   if (searchText.isEmpty) {
+  //     locationsStream();
+  //   } else {
+  //     List<LocationModel> filteredLocations = state.locations.where((location) {
+  //       switch (orderField) {
+  //         case 'name':
+  //           return location.name!.toLowerCase().contains(searchText.toLowerCase());
+  //         case 'city':
+  //           return location.city.cityName.toLowerCase().contains(searchText.toLowerCase());
+  //         case 'type':
+  //           return location.type!.toLowerCase().contains(searchText.toLowerCase());
+  //         default:
+  //           return false;
+  //       }
+  //     }).toList();
+  //
+  //     state = state.copyWith(locations: filteredLocations);
+  //   }
+  // }
+
+  void searchItem(String searchText) {
+    if (searchText.isEmpty) {
+      state = state.copyWith(locations: _fullLocationList);
+    } else {
+      List<LocationModel> filteredLocations = _fullLocationList!.where((location) {
+        // Herhangi bir alanda arama metni geçiyorsa true döner
+        return location.name!.toLowerCase().contains(searchText.toLowerCase()) ||
+            location.city.cityName.toLowerCase().contains(searchText.toLowerCase()) ||
+            location.type!.toLowerCase().contains(searchText.toLowerCase());
+      }).toList();
+
+      state = state.copyWith(locations: filteredLocations);
+    }
   }
 }
 
